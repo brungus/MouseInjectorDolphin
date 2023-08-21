@@ -44,7 +44,9 @@ jobs:
         run: |
           git fetch --unshallow
           revision="r$(git rev-list --count HEAD)"
+          revisiondate="r$(date +%Y-%m-%d)"
           echo "revision=$revision" >> $GITHUB_OUTPUT
+          echo "revisiondate=$revisiondate" >> $GITHUB_OUTPUT
           cd upload
           zip -r9 "./MouseInjectorDolphinDuck_$revision.zip" ./
           cd ..
@@ -54,6 +56,6 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "${{ steps.create-zip-artifact.outputs.revision }}"
           prerelease: false
-          title: "Build ${{ steps.create-zip-artifact.outputs.revision }}"
+          title: "Build ${{ steps.create-zip-artifact.outputs.revisiondate }}"
           files: |
               upload/*.zip
