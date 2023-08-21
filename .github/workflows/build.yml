@@ -1,0 +1,59 @@
+name: Build
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Install MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: mingw64
+          update: true
+          cache: true
+          install: git make mingw-w64-x86_64-toolchain mingw-w64-x86_64-binutils zip
+      - name: Build Mouse Injector
+        run: make -j$(nproc)
+      - name: Prepare artifact for artifact
+        run: |
+          mkdir -p ./upload
+          cp -a "Mouse Injector.exe" ./upload/
+          cp -a ./patches ./upload/
+          cp -a ./cheats ./upload/
+          cp -a README.md ./upload/
+          cp -a LICENSE ./upload/
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: mouse-injector
+          path: upload/
+          retention-days: 0
+      - name: Prepare artifact for publishing
+        id: create-zip-artifact
+        run: |
+          git fetch --unshallow
+          revision="r$(git rev-list --count HEAD)"
+          echo "revision=$revision" >> $GITHUB_OUTPUT
+          cd upload
+          zip -r9 "./MouseInjectorDolphinDuck_$revision.zip" ./
+          cd ..
+      - name: Publish
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "${{ steps.create-zip-artifact.outputs.revision }}"
+          prerelease: false
+          title: "${{ steps.create-zip-artifact.outputs.revision }}"
+          files: |
+              upload/*.zip

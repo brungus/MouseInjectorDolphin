@@ -1,13 +1,8 @@
 #Mouse Injector Makefile
-#Use with TDM-GCC 4.9.2-tdm-3 or MinGW
-#For portable MinGW download Orwell Dev-C++
-#mingw32-make.exe -f makefile to compile
 
 #Compiler directories
-#MINGWDIR = C:/Dev/Dev-Cpp/MinGW64/bin/
-MINGWDIR = C:/Dev/TDM-GCC-64/bin/
-CC = $(MINGWDIR)gcc
-WINDRES = $(MINGWDIR)windres
+CC = gcc
+WINDRES = windres
 
 #Source directories
 SRCDIR = ./
