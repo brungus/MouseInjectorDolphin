@@ -44,11 +44,11 @@ jobs:
         run: |
           git fetch --unshallow
           revision="r$(git rev-list --count HEAD)"
-          revisiondate="r$(date +%Y-%m-%d)"
+          revisiondate="$(date +%Y-%m-%d)"
           echo "revision=$revision" >> $GITHUB_OUTPUT
           echo "revisiondate=$revisiondate" >> $GITHUB_OUTPUT
           cd upload
-          zip -r9 "./MouseInjectorDolphinDuck_$revision.zip" ./
+          zip -r9 "./MouseInjectorDolphinDuck_$revisiondate.zip" ./
           cd ..
       - name: Publish
         uses: "marvinpinto/action-automatic-releases@latest"
