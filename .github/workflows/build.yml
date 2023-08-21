@@ -54,6 +54,6 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "${{ steps.create-zip-artifact.outputs.revision }}"
           prerelease: false
-          title: "${{ steps.create-zip-artifact.outputs.revision }}"
+          title: "Build ${{ steps.create-zip-artifact.outputs.revision }}"
           files: |
               upload/*.zip
