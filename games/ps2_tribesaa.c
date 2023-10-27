@@ -28,6 +28,16 @@
 // #define TAA_CAM_X 0x1E4AE90
 #define TAA_CAM_Y 0xBFC
 #define TAA_CAM_X 0xC00
+#define TAA_FACE_DIR_X 0x26E4
+#define TAA_GUN_ANGLE_X1 0x26D8
+#define TAA_GUN_ANGLE_X2 0x26F0
+#define TAA_CAM_X2 0xE8
+#define TAA_CAM_X3 0x2E8
+#define TAA_CAM_X4 0x1038
+#define TAA_CAM_X5 0x2690
+#define TAA_CAM_X6 0x26CC
+
+#define TAA_ZOOM 0x31918C
 
 static uint8_t PS2_TAA_Status(void);
 static uint8_t PS2_TAA_DetectCam(void);
@@ -79,16 +89,25 @@ static void PS2_TAA_Inject(void)
 	if (!PS2_TAA_DetectCam())
 		return;
 
-	// float fov = PS2_MEM_ReadFloat(cambase + RDR_camFov);
+	float zoom = PS2_MEM_ReadFloat(TAA_ZOOM) / 1.221730351f;
 	float looksensitivity = (float)sensitivity / 40.f;
 	float scale = 300.f;
 
 	float camX = PS2_MEM_ReadFloat(camBase + TAA_CAM_X);
-	camX -= (float)xmouse * looksensitivity / scale;
+	camX -= (float)xmouse * looksensitivity / scale * zoom;
 	PS2_MEM_WriteFloat(camBase + TAA_CAM_X, (float)camX);
+	// PS2_MEM_WriteFloat(camBase + TAA_FACE_DIR_X, (float)camX);
+	// PS2_MEM_WriteFloat(camBase + TAA_GUN_ANGLE_X1, (float)camX);
+	// PS2_MEM_WriteFloat(camBase + TAA_GUN_ANGLE_X2, (float)camX);
+	// PS2_MEM_WriteFloat(camBase + TAA_CAM_X2, (float)camX);
+	// PS2_MEM_WriteFloat(camBase + TAA_CAM_X3, (float)camX);
+	// PS2_MEM_WriteFloat(camBase + TAA_CAM_X4, (float)camX);
+	// PS2_MEM_WriteFloat(camBase + TAA_CAM_X5, (float)camX);
+	// PS2_MEM_WriteFloat(camBase + TAA_CAM_X6, (float)camX);
 
 	float camY = PS2_MEM_ReadFloat(camBase + TAA_CAM_Y);
-	camY += (float)(invertpitch ? -ymouse : ymouse) * looksensitivity / scale;
+	camY += (float)(invertpitch ? -ymouse : ymouse) * looksensitivity / scale * zoom;
+	camY = ClampFloat(camY, -1.396279573f, 1.396279097f);
 	PS2_MEM_WriteFloat(camBase + TAA_CAM_Y, (float)camY);
 
 }

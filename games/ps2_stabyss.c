@@ -30,14 +30,15 @@
 #define STA_CAMY2 0xB7F830
 #define STA_CAMX 0xB7F824
 #define STA_CAMX2 0xB7F834
-#define STA_CAMX_COS 0xB7F860
-#define STA_CAMX_COS2 0xB7F888
-#define STA_CAMX_COS3 0xB7F9E0
-#define STA_CAMX_COS4 0xB7FA08
-#define STA_CAMX_SIN 0xB7F868
-#define STA_CAMX_SIN2 0xB7F880
-#define STA_CAMX_SIN3 0xB7F9E8
-#define STA_CAMX_SIN4 0xB7FA00
+
+#define STA_CAMX_SIN 0xB7F860
+#define STA_CAMX_SIN2 0xB7F888
+#define STA_CAMX_SIN3 0xB7F9E0
+#define STA_CAMX_SIN4 0xB7FA08
+#define STA_CAMX_COS 0xB7F868
+#define STA_CAMX_COS2 0xB7F880
+#define STA_CAMX_COS3 0xB7F9E8
+#define STA_CAMX_COS4 0xB7FA00
 
 static uint8_t PS2_STA_Status(void);
 static void PS2_STA_Inject(void);
@@ -71,7 +72,7 @@ static void PS2_STA_Inject(void)
 		return;
 
 	float looksensitivity = (float)sensitivity / 40.f;
-	float scale = 600.f;
+	float scale = 300.f;
 
 	float camX = PS2_MEM_ReadFloat(STA_CAMX);
 	float camX2 = PS2_MEM_ReadFloat(STA_CAMX2);
@@ -91,20 +92,26 @@ static void PS2_STA_Inject(void)
 		camX -= TAU;
 	while (camX < -PI)
 		camX += TAU;
-	
-	// PS2_MEM_WriteFloat(STA_CAMX_COS, (float)cos(camX));
-	// PS2_MEM_WriteFloat(STA_CAMX_COS2, (float)cos(camX));
-	// PS2_MEM_WriteFloat(STA_CAMX_COS3, (float)cos(camX));
-	// PS2_MEM_WriteFloat(STA_CAMX_COS4, (float)cos(camX));
-	// PS2_MEM_WriteFloat(STA_CAMX_SIN, (float)sin(camX));
-	// PS2_MEM_WriteFloat(STA_CAMX_SIN2, -(float)sin(camX));
-	// PS2_MEM_WriteFloat(STA_CAMX_SIN2, -(float)sin(camX));
-	// PS2_MEM_WriteFloat(STA_CAMX_SIN4, (float)sin(camX));
 
-	PS2_MEM_WriteFloat(STA_CAMX, (float)camX);
-	// PS2_MEM_WriteFloat(STA_CAMX2, (float)camX2);
+	float nScale = 1.5f;
+	float camXSin = PS2_MEM_ReadFloat(STA_CAMX_SIN) / nScale;
+	float camXCos = PS2_MEM_ReadFloat(STA_CAMX_COS) / nScale;
+	float angle = atan(camXSin / camXCos);
+	if (camXCos < 0)
+		angle += TAU / 2.f;
+	
+	camXSin = sin(angle) * nScale;
+	camXCos = cos(angle) * nScale;
+	
+	// PS2_MEM_WriteFloat(STA_CAMX_COS, camXCos);
+	// PS2_MEM_WriteFloat(STA_CAMX_COS2, -camXCos);
+	// PS2_MEM_WriteFloat(STA_CAMX_COS3, -camXCos);
+	// PS2_MEM_WriteFloat(STA_CAMX_COS4, camXCos);
+	// PS2_MEM_WriteFloat(STA_CAMX_SIN, camXSin);
+	// PS2_MEM_WriteFloat(STA_CAMX_SIN2, camXSin);
+	// PS2_MEM_WriteFloat(STA_CAMX_SIN3, camXSin);
+	// PS2_MEM_WriteFloat(STA_CAMX_SIN4, camXSin);
+
+	// PS2_MEM_WriteFloat(STA_CAMX, (float)camX);
 	// PS2_MEM_WriteFloat(STA_CAMX2, (float)camX);
-	// PS2_MEM_WriteFloat(STA_CAMY, (float)camY);
-	// PS2_MEM_WriteFloat(STA_CAMY2, (float)camY2);
-	// PS2_MEM_WriteFloat(STA_CAMY2, (float)camY);
 }

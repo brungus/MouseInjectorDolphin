@@ -1,0 +1,5 @@
+gametitle=Destroy All Humans! SLUS-20945 0x67A29886
+
+[Disable Aim-Assist (requries restart to disable)]
+patch=1,EE,202223C0,extended,00000000
+patch=1,EE,202223DC,extended,00000000

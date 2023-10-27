@@ -1,0 +1,9 @@
+gametitle=Destroy All Humans! 2 SLUS-21439 0x42DF8C8C
+
+[Write PlayerBasePointer (required by MouseInjector)]
+patch=1,EE,D01E8C50,extended,00000000
+patch=1,EE,201E8C50,extended,AD910020
+
+[Disable Aim Assist]
+patch=1,EE,201E8D28,extended,00000000
+patch=1,EE,201E8D40,extended,00000000

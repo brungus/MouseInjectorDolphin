@@ -23,78 +23,82 @@
 #include "../mouse.h"
 #include "game.h"
 
-#define ACPP_CAMY 0x42708
-#define ACPP_CAMX 0x1E2DF2
-#define ACPP_ARENA_CAMX 0x1D1D32
-#define ACPP_ARENA_CAMX_SANITY 0x1D1D20
-#define ACPP_ARENA_CAMX_SANITY_VALUE 0x801D1CC8
-#define ACPP_IS_NOT_BUSY 0x1A7FAC
-#define ACPP_IS_NOT_PAUSED 0x3BA14
-#define ACPP_IS_MAP_OPEN 0x1555EB
-#define ACPP_IS_ABORT_PROMPT 0x1FE06C
+#define ACJ_CAMY 0x41218
+#define ACJ_CAMX 0x1A2592
+#define ACJ_IS_NOT_BUSY 0x1AC6D4
+#define ACJ_IS_NOT_PAUSED 0x39AFC
+#define ACJ_IS_MAP_OPEN 0x14C6CB
+#define ACJ_IS_ABORT_PROMPT 0x1FE06E
 
+#define ACJ_REV1_CAMX 0x1A264A
+#define ACJ_REV1_IS_MAP_OPEN 0x14C783
+#define ACJ_REV1_IS_NOT_BUSY 0x1AC78C
 
-static uint8_t PS1_ACPP_Status(void);
-static void PS1_ACPP_Inject(void);
+#define ACJ_REVISION_NUMBER 0x929C
+#define ACJ_REVISION_1 0x26
+
+static uint8_t PS1_ACJ_Status(void);
+static void PS1_ACJ_Inject(void);
 
 static const GAMEDRIVER GAMEDRIVER_INTERFACE =
 {
-	"Armored Core: Project Phantasma",
-	PS1_ACPP_Status,
-	PS1_ACPP_Inject,
+	"Armored Core (Japan)",
+	PS1_ACJ_Status,
+	PS1_ACJ_Inject,
 	1, // 1000 Hz tickrate
 	0 // crosshair sway supported for driver
 };
 
-const GAMEDRIVER *GAME_PS1_ARMOREDCOREPP = &GAMEDRIVER_INTERFACE;
+const GAMEDRIVER *GAME_PS1_ARMOREDCOREJAPAN = &GAMEDRIVER_INTERFACE;
 
 static float xAccumulator = 0.f;
 static float yAccumulator = 0.f;
+static uint32_t camXAddress = ACJ_CAMX;
+static uint32_t isMapOpenAddress = ACJ_IS_MAP_OPEN;
+static uint32_t isNotBusyAddress = ACJ_IS_NOT_BUSY;
 
 //==========================================================================
 // Purpose: return 1 if game is detected
 //==========================================================================
-static uint8_t PS1_ACPP_Status(void)
+static uint8_t PS1_ACJ_Status(void)
 {
-	// SLUS_006.70
-	return (PS1_MEM_ReadWord(0x9274) == 0x534C5553U && 
-			PS1_MEM_ReadWord(0x9278) == 0x5F303036U && 
-			PS1_MEM_ReadWord(0x927C) == 0x2E37303BU);
+	// SLPS_009.00
+	return (PS1_MEM_ReadWord(0x928C) == 0x534C5053U && 
+			PS1_MEM_ReadWord(0x9290) == 0x5F303039U && 
+			PS1_MEM_ReadWord(0x9294) == 0x2E30303BU);
 }
 //==========================================================================
 // Purpose: calculate mouse look and inject into current game
 //==========================================================================
-static void PS1_ACPP_Inject(void)
+static void PS1_ACJ_Inject(void)
 {
-	// TODO: find new values for abort prompt
-	// TODO: find arena isBusy
+	// TODO: set idle rotating animation with xmouse input
+	// TODO: optional setting to account for AC turning speed
 
-	uint8_t isArena = 0;
-	if (PS1_MEM_ReadUInt(ACPP_ARENA_CAMX_SANITY) == ACPP_ARENA_CAMX_SANITY_VALUE)
-		isArena = 1;
+	if (PS1_MEM_ReadByte(ACJ_REVISION_NUMBER) == ACJ_REVISION_1)
+	{
+		camXAddress = ACJ_REV1_CAMX;
+		isMapOpenAddress = ACJ_REV1_IS_MAP_OPEN;
+		isNotBusyAddress = ACJ_REV1_IS_NOT_BUSY;
+	}
 
-	if (!PS1_MEM_ReadByte(ACPP_IS_NOT_BUSY) && !isArena)
+	if (!PS1_MEM_ReadByte(isNotBusyAddress))
 		return;
 	
-	if (!PS1_MEM_ReadByte(ACPP_IS_NOT_PAUSED))
+	if (!PS1_MEM_ReadByte(ACJ_IS_NOT_PAUSED))
 		return;
 	
-	if (PS1_MEM_ReadByte(ACPP_IS_MAP_OPEN) && !isArena)
+	if (PS1_MEM_ReadByte(isMapOpenAddress))
 		return;
 
-	// if (PS1_MEM_ReadByte(ACPP_IS_ABORT_PROMPT) == 0x4)
-	// 	return;
+	if (PS1_MEM_ReadByte(ACJ_IS_ABORT_PROMPT) == 0x1A)
+		return;
 
 	if(xmouse == 0 && ymouse == 0) // if mouse is idle
 		return;
 	
-	// uint16_t camX = PS1_MEM_ReadHalfword(ACPP_CAMX);
-	uint16_t camX;
-	if (isArena)
-		camX = PS1_MEM_ReadHalfword(ACPP_ARENA_CAMX);
-	else
-		camX = PS1_MEM_ReadHalfword(ACPP_CAMX);
-	uint16_t camY = PS1_MEM_ReadHalfword(ACPP_CAMY);
+	uint16_t camX = PS1_MEM_ReadHalfword(camXAddress);
+	uint16_t camY = PS1_MEM_ReadHalfword(ACJ_CAMY);
 	float camXF = (float)camX;
 	float camYF = (float)camY;
 
@@ -108,9 +112,6 @@ static void PS1_ACPP_Inject(void)
 	float dy = ym * looksensitivity * scale;
 	AccumulateAddRemainder(&camYF, &yAccumulator, ym, dy);
 
-	if (isArena)
-		PS1_MEM_WriteHalfword(ACPP_ARENA_CAMX, (uint16_t)camXF);
-	else
-		PS1_MEM_WriteHalfword(ACPP_CAMX, (uint16_t)camXF);
-	PS1_MEM_WriteHalfword(ACPP_CAMY, (uint16_t)camYF);
+	PS1_MEM_WriteHalfword(camXAddress, (uint16_t)camXF);
+	PS1_MEM_WriteHalfword(ACJ_CAMY, (uint16_t)camYF);
 }

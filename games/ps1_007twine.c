@@ -86,6 +86,11 @@ static void PS1_TWINE_Inject(void)
 {
 	// TODO: use menu (60 FPS) to find FPS cheat
 	// TODO: lean aim boundaries
+	// TODO: new patch that will work with Beetle PSX
+	//			make sure to record all ops that are changed
+	//			instead of nop, try changing to an op that
+	//			similarly does nothing, like add zero, as the
+	//			nops could be the issue
 
 	if(xmouse == 0 && ymouse == 0) // if mouse is idle
 		return;

@@ -58,6 +58,12 @@ inline uint16_t ClampHalfword(const uint16_t value, const uint16_t min, const ui
 	return test > max ? max : test;
 }
 
+inline uint8_t FloatsEqual(const float f1, const float f2)
+{
+	const float epsilon = 0.0001;
+	return (f1 - f2) < epsilon;
+}
+
 extern void AccumulateAddRemainder(float *value, float *accumulator, float dir, float dx);
 
 extern uint8_t sensitivity;

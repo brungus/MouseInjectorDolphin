@@ -61,6 +61,11 @@ static uint8_t PS1_MML_Status(void)
 	return (PS1_MEM_ReadWord(0x925C) == 0x534C5553U && 
 			PS1_MEM_ReadWord(0x9260) == 0x5F303036U && 
 			PS1_MEM_ReadWord(0x9264) == 0x2E30333BU);
+
+	// for no$psx debugger
+	// return (PS1_MEM_ReadWord(0x0) == 0x03000000 && 
+	// 		PS1_MEM_ReadWord(0x4) == 0x800C5A27 && 
+	// 		PS1_MEM_ReadWord(0x8) == 0x08004003);
 }
 //==========================================================================
 // Purpose: calculate mouse look and inject into current game
@@ -109,8 +114,10 @@ static void PS1_MML_Inject(void)
 	if(xmouse == 0 && ymouse == 0) // if mouse is idle
 		return;
 	
-	uint16_t rotX = PS1_MEM_ReadHalfword(MML_ROT_X);
-	uint16_t camY = PS1_MEM_ReadHalfword(MML_CAMY);
+	// uint16_t rotX = PS1_MEM_ReadHalfword(MML_ROT_X);
+	// uint16_t camY = PS1_MEM_ReadHalfword(MML_CAMY);
+	int16_t rotX = PS1_MEM_ReadInt16(MML_ROT_X);
+	int16_t camY = PS1_MEM_ReadInt16(MML_CAMY);
 	float rotXF = (float)rotX;
 	float camYF = (float)camY;
 
@@ -130,20 +137,25 @@ static void PS1_MML_Inject(void)
 	if (camYF < 65000 && camYF > 32000)
 		camYF = 65000;
 	
-	while (rotXF >= 4096)
-		rotXF -= 4096;
-	while (rotXF < 0)
-		rotXF += 4096;
+	// while (rotXF >= 4096)
+	// 	rotXF -= 4096;
+	// while (rotXF < 0)
+	// 	rotXF += 4096;
 
 	// camera follows rotation of MM
-	float cameraX = rotXF - 2048;
+	float cameraX = rotXF + 2048;
 	while (cameraX > 4096)
 		cameraX -= 4096;
 	while (cameraX < 0)
 		cameraX += 4096;
 
-	PS1_MEM_WriteHalfword(MML_ROT_X, (uint16_t)rotXF);
-	PS1_MEM_WriteHalfword(MML_CAMX_WALKING, (uint16_t)cameraX);
-	PS1_MEM_WriteHalfword(MML_CAMY, (uint16_t)camYF);
-	PS1_MEM_WriteHalfword(MML_CAMY_WALKING, (uint16_t)camYF);
+	PS1_MEM_WriteInt16(MML_ROT_X, (int16_t)rotXF);
+	// PS1_MEM_WriteInt16(MML_CAMX_WALKING, (int16_t)cameraX);
+	PS1_MEM_WriteInt16(MML_CAMY, (int16_t)camYF);
+	PS1_MEM_WriteInt16(MML_CAMY_WALKING, (int16_t)camYF);
+
+	// PS1_MEM_WriteHalfword(MML_ROT_X, (uint16_t)rotXF);
+	// PS1_MEM_WriteHalfword(MML_CAMX_WALKING, (uint16_t)cameraX);
+	// PS1_MEM_WriteHalfword(MML_CAMY, (uint16_t)camYF);
+	// PS1_MEM_WriteHalfword(MML_CAMY_WALKING, (uint16_t)camYF);
 }

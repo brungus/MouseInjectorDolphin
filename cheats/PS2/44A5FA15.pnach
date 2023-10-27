@@ -1,0 +1,8 @@
+gametitle=Dirge of Cerberus - Final Fantasy VII 0x44A5FA15
+
+[Disable Auto-Lookahead]
+patch=1,EE,2032D668,extended,00000000
+patch=1,EE,2032D168,extended,00000000
+patch=1,EE,2032CF7C,extended,00000000
+patch=1,EE,2032D66C,extended,00000000
+patch=1,EE,2032D8A0,extended,00000000

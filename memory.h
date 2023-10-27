@@ -17,7 +17,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, visit http://www.gnu.org/licenses/gpl-2.0.html
 //==========================================================================
-#define NOTWITHINMEMRANGE(X) (X < 0x80000000 || X > 0x81800000) // if X is not within GC memory range
+// #define NOTWITHINMEMRANGE(X) (X < 0x80000000 || X > 0x81800000) // if X is not within GC memory range
+#define NOTWITHINMEMRANGE(X) (X < 0x80000000 || X > 0x83800000) // if X is not within GC memory range
 #define WITHINMEMRANGE(X) (!NOTWITHINMEMRANGE(X)) // if X is within GC memory range
 #define NOTWITHINARAMRANGE(X) (X < 0x7E000000 || X > 0x7EFFFFFF)
 #define WITHINARAMRANGE(X) (!NOTWITHINARAMRANGE(X))
@@ -41,6 +42,8 @@ extern void MEM_Quit(void);
 extern uint8_t MEM_FindRamOffset(void);
 extern int32_t MEM_ReadInt(const uint32_t addr);
 extern uint32_t MEM_ReadUInt(const uint32_t addr);
+extern uint16_t MEM_ReadUInt16(const uint32_t addr);
+extern uint8_t MEM_ReadUInt8(const uint32_t addr);
 extern float MEM_ReadFloat(const uint32_t addr);
 extern void MEM_WriteInt(const uint32_t addr, int32_t value);
 extern void MEM_WriteUInt(const uint32_t addr, uint32_t value);
@@ -107,6 +110,7 @@ extern uint32_t PSP_MEM_ReadPointer(const uint32_t addr);
 extern uint32_t PSP_MEM_ReadUInt(const uint32_t addr);
 extern uint16_t PSP_MEM_ReadUInt16(const uint32_t addr);
 extern float PSP_MEM_ReadFloat(const uint32_t addr);
+extern void PSP_MEM_WriteUInt16(const uint32_t addr, uint16_t value);
 extern void PSP_MEM_WriteFloat(const uint32_t addr, float value);
 
 extern char hookedEmulatorName[80];

@@ -297,6 +297,7 @@ static void GUI_Update(void)
 	// printf("cos: %f\n", out3);
 	// printf("onFootTotalAngle: %f", totalAngleOut);
 	// printf("emuoffset: %llX", emuoffsetOut);
+	// printf("words?: %s", titleOut);
 }
 //==========================================================================
 // Purpose: print list of supported games

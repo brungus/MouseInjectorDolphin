@@ -22,6 +22,7 @@
 #include <windows.h>
 #include <tlhelp32.h>
 #include <psapi.h>
+#include <tchar.h>
 #include "main.h"
 #include "memory.h"
 
@@ -55,11 +56,14 @@ void MEM_Quit(void);
 void MEM_UpdateEmuoffset(void);
 int32_t MEM_ReadInt(const uint32_t addr);
 uint32_t MEM_ReadUInt(const uint32_t addr);
+uint16_t MEM_ReadUInt16(const uint32_t addr);
+uint8_t MEM_ReadUInt8(const uint32_t addr);
 float MEM_ReadFloat(const uint32_t addr);
 void MEM_WriteInt(const uint32_t addr, int32_t value);
 void MEM_WriteUInt(const uint32_t addr, uint32_t value);
 void MEM_WriteFloat(const uint32_t addr, float value);
 static void MEM_ByteSwap32(uint32_t *input);
+static void MEM_ByteSwap64(uint64_t *input);
 
 int32_t ARAM_ReadInt(const uint32_t addr);
 uint32_t ARAM_ReadUInt(const uint32_t addr);
@@ -121,6 +125,7 @@ uint32_t PSP_MEM_ReadPointer(const uint32_t addr);
 uint32_t PSP_MEM_ReadUInt(const uint32_t addr);
 uint16_t PSP_MEM_ReadUInt16(const uint32_t addr);
 float PSP_MEM_ReadFloat(const uint32_t addr);
+void PSP_MEM_WriteUInt16(const uint32_t addr, uint16_t value);
 void PSP_MEM_WriteFloat(const uint32_t addr, float value);
 
 void printdebug(uint32_t val);
@@ -236,14 +241,14 @@ uint8_t MEM_Init(void)
 			emuhandle = OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_QUERY_INFORMATION, FALSE, pe32.th32ProcessID);
 			break;
 		}
-		if(strcmp(pe32.szExeFile, "NO$PSX.EXE") == 0) // if DuckStation was found
+		if(strcmp(pe32.szExeFile, "NO$PSX.EXE") == 0) 
 		{
 			strcpy(hookedEmulatorName, "NO$PSX");
 			isNOMONEYPSXHandle = 1;
 			emuhandle = OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_QUERY_INFORMATION, FALSE, pe32.th32ProcessID);
 			break;
 		}
-		if(strcmp(pe32.szExeFile, "Project64.exe") == 0) // if DuckStation was found
+		if(strcmp(pe32.szExeFile, "Project64.exe") == 0) 
 		{
 			strcpy(hookedEmulatorName, "Project64");
 			isProject64Handle = 1;
@@ -278,6 +283,46 @@ uint8_t MEM_FindRamOffset(void)
 
 	uint32_t lastRegionSize = 0;
 	uint32_t lastlastRegionSize = 0;
+
+	// if (strcmp(hookedEmulatorName, "DuckStation") == 0)
+	// {
+	// 	uint64_t output; // temp var
+	// 	// UINT_PTR addr = 0x7FF6A3B80000;
+
+	// 	HMODULE hMods[1024];
+	// 	DWORD cbNeeded;
+	// 	unsigned int i;
+	// 	UINT_PTR addr;
+
+	// 	if (EnumProcessModules(emuhandle, hMods, sizeof(hMods), &cbNeeded))
+	// 	{
+	// 		for (i = 0; i < (cbNeeded / sizeof(HMODULE)); i++)
+	// 		{
+	// 			TCHAR szModName[MAX_PATH];
+
+	// 			if (GetModuleBaseName(emuhandle, hMods[i], szModName,
+	// 									sizeof(szModName) / sizeof(TCHAR)))
+	// 			{
+	// 				if (strcmp(szModName, "duckstation-qt-x64-ReleaseLTCG.exe") == 0)
+	// 				{
+	// 					MODULEINFO modinfo;
+
+	// 					if (GetModuleInformation(emuhandle, hMods[i], &modinfo, sizeof(modinfo)))
+	// 					{
+	// 						memcpy(&addr, &(modinfo.lpBaseOfDll), sizeof(modinfo.lpBaseOfDll));
+	// 					}
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+
+	// 	// UINT_PTR addr = (UINT_PTR)GetModuleHandle("duckstation-qt-x64-ReleaseLTCG.exe");
+	// 	uint64_t offset = 0x7E16C0;
+	// 	// uint64_t offset = 0x84A720;
+	// 	ReadProcessMemory(emuhandle, (LPVOID)(addr + offset), &output, sizeof(output), NULL);
+	// 	emuoffset = output;
+	// 	return (emuoffset != 0x0);
+	// }
 
 	while (VirtualQueryEx(emuhandle, gamecube_ptr, &info, sizeof(info))) // loop continues until we reach the last possible memory region
 	{
@@ -369,7 +414,10 @@ uint8_t MEM_FindRamOffset(void)
 			}
 		}
 		else if (isPS1handle == 1) {
-			emuRegionSize = 0x200000; 		// DuckStation
+			// emuRegionSize = 0x200000; 		// DuckStation
+			emuRegionSize = 0x800000;		// DuckStation, newer version 0.1-5943 (unsure which version changed region size)
+			// TODO: check version and set region size
+			//		 maybe look for a pointer to the right region and get size from that?
 		} else if (isN64handle == 1) {
 			if (isMupenhandle)
 				emuRegionSize = 0x20011000; // RetroArch(Mupen64Plus core)/simple64/RMG
@@ -560,6 +608,36 @@ uint32_t MEM_ReadUInt(const uint32_t addr)
 	MEM_ByteSwap32(&output); // byteswap
 	return output;
 }
+
+// uint64_t MEM_ReadUInt64(const uint64_t addr)
+// {
+// 	if(!emuoffset || NOTWITHINMEMRANGE(addr)) // if gamecube memory has not been init by dolphin or reading from outside of memory range
+// 		return 0;
+// 	uint64_t output; // temp var used for output of function
+// 	ReadProcessMemory(emuhandle, (LPVOID)(emuoffset + (addr - 0x80000000)), &output, sizeof(output), NULL);
+// 	MEM_ByteSwap64(&output); // byteswap
+// 	return output;
+// }
+
+uint16_t MEM_ReadUInt16(const uint32_t addr)
+{
+	if(!emuoffset || NOTWITHINMEMRANGE(addr)) // if gamecube memory has not been init by dolphin or reading from outside of memory range
+		return 0;
+	uint16_t output; // temp var used for output of function
+	ReadProcessMemory(emuhandle, (LPVOID)(emuoffset + (addr - 0x80000000)), &output, sizeof(output), NULL);
+	// MEM_ByteSwap32(&output); // byteswap
+	// TODO: needs byteswap to be proper
+	return output;
+}
+
+uint8_t MEM_ReadUInt8(const uint32_t addr)
+{
+	if(!emuoffset || NOTWITHINMEMRANGE(addr)) // if gamecube memory has not been init by dolphin or reading from outside of memory range
+		return 0;
+	uint8_t output; // temp var used for output of function
+	ReadProcessMemory(emuhandle, (LPVOID)(emuoffset + (addr - 0x80000000)), &output, sizeof(output), NULL);
+	return output;
+}
 //==========================================================================
 // Purpose: read float from memory
 // Parameter: address location
@@ -614,6 +692,13 @@ static void MEM_ByteSwap32(uint32_t *input)
 {
 	const uint8_t *inputarray = ((uint8_t *)input); // set byte array to input
 	*input = (uint32_t)((inputarray[0] << 24) | (inputarray[1] << 16) | (inputarray[2] << 8) | (inputarray[3])); // reassign input to swapped value
+}
+
+static void MEM_ByteSwap64(uint64_t *input)
+{
+	const uint8_t *inputarray = ((uint8_t *)input); // set byte array to input
+	// *input = (uint64_t)((inputarray[0] << 24) | (inputarray[1] << 16) | (inputarray[2] << 8) | (inputarray[3])); // reassign input to swapped value
+	*input = (uint64_t)((inputarray[0] << 56) | (inputarray[1] << 48) | (inputarray[2] << 40) | (inputarray[3] << 32) | (inputarray[4] << 24) | (inputarray[5] << 16) | (inputarray[6] << 8) | (inputarray[7])); // reassign input to swapped value
 }
 
 //==========================================================================
@@ -1108,6 +1193,13 @@ float PSP_MEM_ReadFloat(const uint32_t addr)
 	ReadProcessMemory(emuhandle, (LPVOID)(emuoffset + addr), &output, sizeof(output), NULL);
 	// MEM_ByteSwap32((uint32_t *)&output); // byteswap
 	return output;
+}
+
+void PSP_MEM_WriteUInt16(const uint32_t addr, uint16_t value)
+{
+	if(!emuoffset || PSPNOTWITHINMEMRANGE(addr))
+		return;
+	WriteProcessMemory(emuhandle, (LPVOID)(emuoffset + addr), &value, sizeof(value), NULL);
 }
 
 void PSP_MEM_WriteFloat(const uint32_t addr, float value)
