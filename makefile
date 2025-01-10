@@ -5,7 +5,7 @@
 
 #Compiler directories
 #MINGWDIR = C:/Dev/Dev-Cpp/MinGW64/bin/
-MINGWDIR = C:/Dev/TDM-GCC-64/bin/
+MINGWDIR = C:/TDM-GCC-64/bin/
 CC = $(MINGWDIR)gcc
 WINDRES = $(MINGWDIR)windres
 

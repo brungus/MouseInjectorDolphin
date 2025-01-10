@@ -1,0 +1,4 @@
+gametitle=007 - Quantum of Solace SLUS-21813 0x5A6A935D
+
+// Disable wait on right stick input fuction while in cover
+patch=1,EE,001DE778,word,00000000

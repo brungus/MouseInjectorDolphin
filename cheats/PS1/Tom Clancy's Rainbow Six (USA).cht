@@ -1,0 +1,11 @@
+#group=Ungrouped
+#type=Gameshark
+#activation=EndFrame
+[*Disable Camera Centering]
+9003E9CC 0000
+9003E988 0000
+9003E9B8 0000
+9003E974 0000
+9003E9A8 0000
+9003E960 0000
+

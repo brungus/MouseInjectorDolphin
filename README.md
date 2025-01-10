@@ -1,20 +1,29 @@
 # Mouse Injector for Dolphin 5.0, DuckStation, PCSX2, and other emulators
 
-An external app that injects cursor input into game memory.
+An external app that injects cursor input into game memory. 
+
+### *This fork incorporates the work from https://github.com/vl4sty/MouseInjectorDolphinDuck in order to hook to newer versions of duckstation and pcsx2, however with support for some more games added by myself and vl4sty.*
+
+I would have liked to simply fork their repo but Github doesn't allow you to fork a repo if you have already forked its upstream.
+
+### !This fork is focused only on Duckstation and PCSX2 emulators!
+## Additional games for PS2 - NTSC ONLY:
+| Game Title | Issues |
+| --------- | ------------------ |
+| 007: Quantum of Solace | <sup>Needs a cheat file enabled to fix aiming in a cover: [5A6A935D.pnach](https://github.com/vl4sty/MouseInjectorDolphinDuck/blob/master/cheats/PS2/5A6A935D.pnach)</sub> |
+| Medal of Honor: Frontline | <sup>None.</sub> |
+| Medal of Honor: Rising Sun | <sup>X-axis while ADS is not working in the truck section in the mission "The Fall of the Philippines".</sub> |
+
 
 ### *If you have a game request, please go to the 'Discussions' tab and post it!*
 ### _Scroll to bottom for_ <font color="red"> *FREQUENTLY ASKED QUESTIONS* </font>
 
 
-## Supported Emulators
+## This fork maintains only these emulators, thus they will work
 | Emulator/Frontend | Version | Executable name (case sensitive) |
 | --- | :---: | :---: |
-| Dolphin | 5.0 and up | dolphin.exe |
 | DuckStation | 0.1-5943 | duckstation-qt-x64-ReleaseLTCG.exe |
-| PCSX2 Nightly | latest | pcsx2-qt.exe<br>pcsx2-qtx64.exe<br>pcsx2-qtx64-avx2.exe |
-| RetroArch (see cores below) | 1.14.0 | retroarch.exe |
-| PPSSPP | 1.14.4 | PPSSPPWindows.exe / PPSSPPWindows64.exe |
-| Project64 | >=3.0.1 | Project64.exe |
+| PCSX2 | Stable 2.0.0, nightly| pcsx2-qt.exe<br>pcsx2-qtx64.exe<br>pcsx2-qtx64-avx2.exe |
 * NOTE: Versions given are the latest that have been tested working, may work with newer
 * NOTE: PCSX2 will only hook with **BIOS versions 5XXXX and up**.
 
@@ -150,6 +159,7 @@ avoid clicking off the window.
 | Destroy All Humans! (USA) | SLUS-20945 | Good | <sup>**Requires supplied cheat file to disable aim-assist**</sub> | - | **67A29886.pnach** |
 | Destroy All Humans! 2 (USA) | SLUS-21439 | Good | <sup>**Requires supplied cheat file**</sub> | <sup>Not fully tested</sub> | **42DF8C8C.pnach** |
 | Dirge of Cerberus - Final Fantasy VII (USA) | SLUS-21419 | Good | <sup>**Requires supplied cheat file to disable auto-lookahead**</sub> | <sup>Not fully tested</sub> | **44A5FA15.pnach** |
+| Fugitive hunter - War on Terror (USA) | SLUS-20464 | Good | <sup> Not fully tested </sub> | - | - |
 | Eternal Ring (USA) | SLUS-20015 | Good | <sup>Not fully tested</sub> | - | - |
 | Ghost in the Shell: Stand Alone Complex (USA) | SLUS-21006 | Fair | <sup>Horizontal camera while climbing not clamped</sub> | - | - |
 | Global Defence Force (PAL) / Chikyū Bōeigun 2 (Japan) | SLES-54464, SLPM-62652 | Good | <sup>Vehicle mouse control is experimental</br>Not fully tested</sub> | <sup>Control Type: Technical</sub> | - |
@@ -168,6 +178,7 @@ avoid clicking off the window.
 | Return to Castle Wolfenstein: Operation Resurrection (USA) | SLUS-20297 | Good | <sup>Not fully tested</sub> | <sup>Auto Center View: Off</br>Always Aim: Off</sub> | - |
 | Robotech: Invasion (USA) | SLUS-20823 | Fair | <sup>Turrets not supported</br>Not fully tested</sub> | - | - |
 | SOCOM U.S. Navy SEALs (USA) | SCUS-97134 | Fair | <sup>Not fully tested</sub> | <sup>Aim Assist: Off</sub> | - |
+| Shadow Tower: Abyss (English Patch) | SLPS-25217 | Good | <sup>Strange vertex stretching across screen when turning too quickly. Not fully tested. </sub> | - | | - |
 | Serious Sam: Next Encounter (USA) | SLUS-20907 | Good | <sup>Vehicles not supported</br>Not fully tested</sub> | <sup>Auto Center: Off</br>Auto Aim: Off</sub> | - |
 | SWAT: Global Strike Team (USA) | SLUS-20433 | Good | <sup>Not fully tested</sub> | <sup>Auto Leveling: Off</br>Auto Aim: Off</br>Targeting Aid: Off</sub> | - |
 | Time Crisis II (USA) | SLUS-20219 | Good | <sup>Not fully tested</sub> | - | - |

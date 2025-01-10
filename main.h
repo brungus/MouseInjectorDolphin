@@ -19,8 +19,8 @@
 //==========================================================================
 #include <string.h>
 
-#define DOLPHINVERSION "Dolphin"
-#define BUILDINFO "(v0.31 - "__DATE__")"
+#define DOLPHINVERSION "emulators"
+#define BUILDINFO "(v0.31 - hotfix - "__DATE__")"
 #define LINE "__________________________________________________________________"
 // input for interface
 #define K_1 GetAsyncKeyState(0x31) // key '1'
